@@ -18,6 +18,5 @@ sentence-transformers>=2.2.2
 unstructured[all-docs]
 uvicorn
 werkzeug
-ibm-cos-sdk
 chainlit
 coverage
