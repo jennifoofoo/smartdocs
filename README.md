@@ -202,7 +202,9 @@ smartdocs/
 │   │   ├── logger_config.py    # Logging setup
 │   │   └── parser_tools.py     # Parsing utilities
 │   └── api/                    # API endpoints (optional)
-└── tests/                      # Unit tests
+├── InspectChunks.py            # CLI helper to inspect chunks (optional)
+├── QueryDataBase.py            # CLI helper for vector search (optional)
+└── QueryDataBase_LLM.py        # CLI helper with LLM answer (optional)
 ```
 
 ---
@@ -239,14 +241,13 @@ Edit `src/utilities/app_config.py` to customize:
 
 ## 🧪 Testing
 
-```bash
-# Run all tests
-python -m pytest tests/
+Automated tests are not currently included. Suggested next steps if you want to
+extend SmartDocs:
 
-# With coverage
-coverage run -m pytest tests/
-coverage report
-```
+- Add unit tests for ingestion and retrieval helpers using a lightweight Milvus mock
+- Add integration tests that index a small sample set and validate retrieval
+
+If you add tests, remember to wire them into your CI pipeline (e.g., GitHub Actions).
 
 ---
 
