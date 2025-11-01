@@ -1,24 +1,25 @@
-# Zeigt gespeicherte Chunks in Milvus Lite an
+"""Inspect chunks stored in Milvus Lite."""
 
 from src.core.milvus_mgmt import COLLECTION_NAME, dbClient
+
 
 def show_chunks(doc_name: str | None = None,
                 s3_file_key: str | None = None,
                 limit: int = 9999):
-    # --- Debug: Pfad & Collections prüfen ---
+    # --- Debug: inspect path & collections ---
     try:
         using_info = getattr(dbClient, "_using", None) or "unknown"
         print(f"📂 Using Milvus DB file: {using_info}")
         print(f"📚 Collections: {dbClient.list_collections()}")
-        
-        # Anzahl der Entities prüfen
+
+        # Inspect number of entities
         stats = dbClient.get_collection_stats(collection_name=COLLECTION_NAME)
         row_count = stats.get("row_count", 0)
         print(f"📊 Total entities in collection: {row_count}")
     except Exception as e:
         print(f"⚠️ Could not inspect DB connection: {e}")
 
-    # --- Filter zusammenbauen ---
+    # --- Build filter expression ---
     flt = []
     if doc_name:
         flt.append(f'doc_name == "{doc_name}"')
@@ -26,19 +27,19 @@ def show_chunks(doc_name: str | None = None,
         flt.append(f's3_file_key == "{s3_file_key}"')
     filter_expr = " and ".join(flt) if flt else None
 
-    # --- Collection laden ---
+    # --- Load collection ---
     try:
         dbClient.load_collection(collection_name=COLLECTION_NAME)
     except Exception as e:
         print(f"⚠️ Could not load collection {COLLECTION_NAME}: {e}")
         return
 
-    # --- Alle Datensätze abrufen ---
+    # --- Fetch records ---
     try:
-        # Wenn kein Filter gesetzt ist, verwende einen catch-all Filter
+        # If no filter is provided, use a catch-all filter
         if not filter_expr:
             filter_expr = "chunk_id >= 0"
-        
+
         rows = dbClient.query(
             collection_name=COLLECTION_NAME,
             filter=filter_expr,
@@ -58,10 +59,10 @@ def show_chunks(doc_name: str | None = None,
         print("Filter:", filter_expr or "(no filter)")
         return
 
-    # --- Sortieren nach chunk_id ---
+    # --- Sort by chunk_id ---
     rows = sorted(rows, key=lambda r: r["chunk_id"])
 
-    # --- Übersichtliche Ausgabe ---
+    # --- Print nicely ---
     print(f"\n=== {len(rows)} Chunks in '{COLLECTION_NAME}' ===")
     if doc_name:
         print(f"📄 Document: {doc_name}")
@@ -71,11 +72,12 @@ def show_chunks(doc_name: str | None = None,
               f'| {len(r.get("chunk","")):5d} chars | {preview}…')
     print()
 
+
 if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser(description="Inspect stored document chunks in Milvus Lite")
-    ap.add_argument("--doc", help="doc_name (Dateiname)", default=None)
-    ap.add_argument("--key", help="s3_file_key (relativer Pfad unter DATA_PATH)", default=None)
+    ap.add_argument("--doc", help="doc_name (filename)", default=None)
+    ap.add_argument("--key", help="s3_file_key (relative path under DATA_PATH)", default=None)
     ap.add_argument("--limit", type=int, default=9999, help="Max number of chunks to show")
     args = ap.parse_args()
     show_chunks(doc_name=args.doc, s3_file_key=args.key, limit=args.limit)

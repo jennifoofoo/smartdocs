@@ -1,12 +1,15 @@
-###
-# Ensure that the environment variables are set this way, before running the
-# script. Otherwise the database is reset and you will not receive any answer.
-#
-# DELETE_OLD_COLLECTION = False
-#
+"""
+Utility script to query the Milvus vector database via CLI.
 
+Set the following environment variables before running the script to avoid
+accidentally resetting the database:
 
-# %%
+    DELETE_OLD_COLLECTION = False
+
+Usage example:
+    python QueryDataBase.py -q "Show me all documents related to project alpha"
+"""
+
 from typing import List
 
 from src.core.milvus_mgmt import COLLECTION_NAME, dbClient
@@ -36,12 +39,12 @@ def process_query(user_query: str, limit: int = 10) -> List[List[dict]]:
 if __name__ == "__main__":
     import argparse
 
-    # parse command line arguments
+    # Parse command line arguments
     arg_parser = argparse.ArgumentParser(description='')
     arg_parser.add_argument(
         '--question', '-q',
-        help='Stelle eine Frage an die Dokumente. Nutze Anführungszeichen!',
-        default='Welche Dokumente weisen auf entstehende Mehrkosten hin?'
+        help='Ask a question about the indexed documents. Use quotation marks.',
+        default='Which documents mention additional costs?'
     )
     args = arg_parser.parse_args()
 

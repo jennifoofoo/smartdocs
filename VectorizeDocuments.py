@@ -1,16 +1,15 @@
 # %% [markdown]
-# ## Lokale Dateien durchhangeln
-
-# %% [markdown]
-# ### Alle Dateien vorbereiten bzw. in die MILVUS laden
+# ## Iterate through local files
 #
-# Die wesentlichen Funktionen folgen und sind aus dem Notebook "FileIngestion" entliehen.
-# Die Methoden für die unterschiedlichen Formate müssen sicher noch verbessert werden.
+# %% [markdown]
+# ### Prepare all files and ingest them into Milvus
+#
+# The core functions originate from the "FileIngestion" notebook.
+# Support for certain formats may still require further improvements.
 #
 # **PITFALLS**:
 #
-# 1. Andere Formate werden noch rudimentär unterstützt und liefern irgendwelche
-#    Texte aus der jeweiligen Datei.
+# 1. Some formats are only partially supported and might produce limited text.
 
 import os
 from typing import List
@@ -40,21 +39,20 @@ def insert_data(data: List[dict], max_message_size: int = 512) -> int:
     return insert_count
 
 
-
 def clear_collection():
     if COLLECTION_NAME in dbClient.list_collections():
         logger.info(f"🗑️ Dropping collection '{COLLECTION_NAME}'...")
         dbClient.drop_collection(collection_name=COLLECTION_NAME)
-    
-    # Collection neu erstellen mit dem importierten Schema
+
+    # Recreate collection using the imported schema
     dbClient.create_collection(
-        collection_name=COLLECTION_NAME, 
-        schema=schema, 
+        collection_name=COLLECTION_NAME,
+        schema=schema,
         consistency_level="Session"
     )
-    
+
     create_index_for_collection(COLLECTION_NAME)
-    
+
     logger.info(f"✅ Collection '{COLLECTION_NAME}' recreated and empty.")
 
 # %%
@@ -64,13 +62,13 @@ def process_file(suppliers: List[str]):
         logger.info(f"✅ Collection '{COLLECTION_NAME}' loaded into memory.")
     except Exception as e:
         logger.warning(f"⚠️ Could not load collection (may already be loaded): {e}")
-    
+
     count = 0
     for root, dirs, files in os.walk(DATA_PATH):
         print(root)
         for file in files:
             print(file)
-            # Skip DBs, Mac-Meta-Files und Office-Lockfiles (~$...)
+            # Skip DBs, macOS meta files, and Office lock files (~$...)
             if (
                 file in ['milvus_demo.db', '.DS_Store', '.milvus_demo.db.lock']
                 or file.startswith("~$")
@@ -89,7 +87,7 @@ def process_file(suppliers: List[str]):
 
             result = []
             try:
-                # --- E-Mails ---
+                # --- Emails ---
                 if ext in ['.eml', '.msg']:
                     with open(file_path, 'rb') as f:
                         if ext == ".eml":
@@ -97,34 +95,34 @@ def process_file(suppliers: List[str]):
                         elif ext == ".msg":
                             email = MsgEmailMessage(f.read())
 
-                    logger.debug(f"Dealing with {file_key}")
+                    logger.debug(f"Processing {file_key}")
                     result = deal_with_email(email, file_key)
 
-                # --- Dokumente ---
+                # --- Documents ---
                 elif ext in ['.xlsx', '.docx', '.pptx', '.pdf']:
                     with open(file_path, 'rb') as f:
-                        logger.info(f"Dealing with {file_key}")
+                        logger.info(f"Processing {file_key}")
                         result = deal_with_document(f, file_key)
 
                 else:
                     logger.warning(f"Unsupported file type: {file}")
                     continue
-                
+
                 if not result or len(result) == 0:
                     logger.warning(f"No chunks generated for {file_key}")
                     continue
 
-                logger.info(f"{file_key} → {len(result)} Chunks generated")
+                logger.info(f"{file_key} → {len(result)} chunks generated")
                 if len(result) > 0:
-                    print("\n=== 🔍 Schema-Vorschau für", file_key, "===")
+                    print("\n=== 🔍 Schema preview for", file_key, "===")
                     first = result[0]
                     for key, value in first.items():
-                        print(f"  {key:<15} | Typ: {type(value).__name__:<10} | Beispiel: {str(value)[:80]}")
+                        print(f"  {key:<15} | Type: {type(value).__name__:<10} | Example: {str(value)[:80]}")
                     print("  ...")
                     print(f"Total chunks: {len(result)}")
                     print("===============================\n")
                 else:
-                    print(f"⚠️ Keine Chunks generiert für {file_key}")
+                    print(f"⚠️ No chunks generated for {file_key}")
 
                 try:
                     logger.debug(f"{count:04d}: {file_key} at {os.path.dirname(file_key)}")
@@ -137,7 +135,7 @@ def process_file(suppliers: List[str]):
             except Exception as e:
                 logger.error(f"Skipping {file_key} due to error: {e}")
                 continue
-    
+
     try:
         dbClient.release_collection(COLLECTION_NAME)
         logger.info(f"💾 Released collection - {count} entities persisted to disk.")
@@ -147,14 +145,13 @@ def process_file(suppliers: List[str]):
     logger.debug(f"{count} entities inserted in total")
 
 
-
 if __name__ == "__main__":
     import argparse
 
     arg_parser = argparse.ArgumentParser(description='')
     arg_parser.add_argument(
         '--suppliers', '-s',
-        help='Comma separated list of suppliers to process. (1. level at data directory)',
+        help='Comma-separated list of suppliers to process (first level in data directory).',
         default='carsten.ikemeyer,wolfgang.schneider6,roland.stühmer,iris.diederich,markus.pawlak')
     arg_parser.add_argument(
         '--clear-collection', '-c',

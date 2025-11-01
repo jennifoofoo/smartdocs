@@ -29,11 +29,11 @@ from src.utilities.parser_tools import (has_valid_extension, is_image_mimetype,
 
 encoder = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
-# CrossEncoder für Re-Ranking (lazy loading)
+# CrossEncoder for re-ranking (lazy loading)
 _reranker = None
 
 def get_reranker():
-    """Lazy loading des CrossEncoder-Modells."""
+    """Lazy-load the CrossEncoder model."""
     global _reranker
     if _reranker is None:
         logger.info("Loading CrossEncoder for re-ranking...")
@@ -222,12 +222,12 @@ def process_elements(elements, meta_data, filename, mimetype, full_path=None) ->
             logger.warning(f"⚠️ No textual content extracted from {filename}")
             return []
 
-    print(f"\n📘 {filename}: {len(smart_chunks)} Chunks erzeugt")
+    print(f"\n📘 {filename}: {len(smart_chunks)} Chunks generated")
     for i, (txt, cat) in enumerate(smart_chunks[:10]):
         safe_txt = (txt or "")
         safe_cat = (cat or "Unknown")
         preview = re.sub(r"\s+", " ", safe_txt[:120])
-        print(f"   [{i:02d}] {safe_cat:<10} | {len(safe_txt):4} Zeichen | {preview}")
+        print(f"   [{i:02d}] {safe_cat:<10} | {len(safe_txt):4} characters | {preview}")
 
     texts = [t for t, _ in smart_chunks if t.strip()]
     embeds = embed_texts(texts)
@@ -301,7 +301,7 @@ def deal_with_email(email: EmlEmailMessage | MsgEmailMessage,
 
     if len(embeds) != len(chunks) or len(embeds) == 0:
         logger.error(
-            f"Länge embeddings {len(embeds)} und chunks {len(chunks)} unterschiedlich oder 0")
+            f"Embedding length {len(embeds)} and chunk length {len(chunks)} differ or are zero")
         raise Exception("Length error")
 
     meta_data = {
@@ -362,7 +362,7 @@ def deal_with_document(document: bytes, file_key: str) -> List[dict]:
 
     full_path = os.path.join(os.getenv("DATA_PATH", "."), file_key)
     if not os.path.exists(full_path):
-        # Temporäre Datei schreiben, damit pdfplumber sie verarbeiten kann
+        # Write a temporary file so pdfplumber can process it
         with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(filename)[1]) as tmp:
             tmp.write(document)
             full_path = tmp.name

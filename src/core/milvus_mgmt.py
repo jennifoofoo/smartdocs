@@ -100,7 +100,7 @@ else:
 
 
 def create_index_for_collection(collection_name: str = COLLECTION_NAME):
-    """Erstellt Index für die Collection."""
+    """Create an index for the specified collection."""
     index_params = dbClient.prepare_index_params()
 
     if os.getenv("MILVUS_LOCAL", "True") == "True":
