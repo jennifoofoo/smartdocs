@@ -1,0 +1,70 @@
+# SmartDocs .gitignore
+
+# ===== Python =====
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+# ===== Virtual Environments =====
+.env
+.env.*
+.venv
+.venv/
+venv/
+ENV/
+env/
+
+# ===== Data & Databases =====
+/data/
+!data/.gitkeep
+daten/
+*.db
+*.db.lock
+data/milvus_demo.db
+data/.milvus_demo.db.lock
+chroma/
+
+# ===== Logs & Temporary Files =====
+*.log
+_temp/
+test_results/
+**/results/*
+
+# ===== IDE & Editor =====
+.vscode/
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== OS Files =====
+.DS_Store
+.DS_Store*
+Thumbs.db
+
+# ===== Jupyter =====
+**/.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ===== Chainlit =====
+.chainlit/
+.files/
+
+# ===== Test Files =====
+test.py
+test_*.pyc
+
+# ===== Uploads & User Content =====
+uploads/
+static/results/

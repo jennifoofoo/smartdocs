@@ -1,0 +1,23 @@
+## to provide REST-Api and minimalistic frontend
+bs4
+extract_msg
+fastapi
+gunicorn
+jinja2
+langchain
+langchain-unstructured
+langchain-community
+langchain-text-splitters
+pydantic
+pymilvus>=2.4.4
+python-dateutil
+python-dotenv
+python-multipart
+requests
+sentence-transformers>=2.2.2
+unstructured[all-docs]
+uvicorn
+werkzeug
+ibm-cos-sdk
+chainlit
+coverage
