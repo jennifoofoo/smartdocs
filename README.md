@@ -251,11 +251,53 @@ If you add tests, remember to wire them into your CI pipeline (e.g., GitHub Acti
 
 ---
 
-## 🐳 Docker (Coming Soon)
+## 🐳 Docker
+
+### Quick Start with Docker Compose
+
+The easiest way to run SmartDocs is with Docker Compose, which handles both Ollama and SmartDocs:
 
 ```bash
+# Clone the repository
+git clone https://github.com/jennifoofoo/smartdocs.git
+cd smartdocs
+
+# Start both Ollama and SmartDocs
 docker-compose up
 ```
+
+This will:
+
+1. Start Ollama service (for LLM inference)
+2. Automatically download the `qwen2:7b` model on first run
+3. Start SmartDocs on `http://localhost:8000`
+
+### Add Your Documents
+
+```bash
+# Place your documents in the data/ folder
+mkdir -p data/my_documents
+cp your_files/* data/my_documents/
+
+# Index them (in a new terminal, or exec into container)
+docker-compose exec smartdocs python VectorizeDocuments.py --clear-collection
+```
+
+### Using Dockerfile Only
+
+If you prefer to manage Ollama separately:
+
+```bash
+# Build the image
+docker build -t smartdocs .
+
+# Run the container
+docker run -p 8000:8000 \
+  -v $(pwd)/data:/app/data \
+  smartdocs
+```
+
+**Note:** The Dockerfile includes Ollama installation. For better separation, use `docker-compose.yml` instead.
 
 ---
 

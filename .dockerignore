@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.env
+.env.*
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Data (user should mount this)
+data/*.db
+data/*/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Chainlit
+.chainlit/
+.files/
+
+# Logs
+*.log
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+

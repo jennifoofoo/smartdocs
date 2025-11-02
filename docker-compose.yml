@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: smartdocs-ollama
+    volumes:
+      - ollama-models:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+
+  smartdocs:
+    build: .
+    container_name: smartdocs-app
+    depends_on:
+      - ollama
+    volumes:
+      - ./data:/app/data
+      - ./src:/app/src
+      - ./app.py:/app/app.py
+      - ./chainlit.md:/app/chainlit.md
+      - milvus-data:/app/data/milvus
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - MILVUS_EMBEDDED_MODE=true
+      - DATA_PATH=/app/data
+    restart: unless-stopped
+    command: >
+      sh -c "
+        echo 'Waiting for Ollama to be ready...' &&
+        until curl -f http://ollama:11434/api/tags > /dev/null 2>&1; do
+          sleep 2
+        done &&
+        echo 'Ollama is ready. Pulling model (if needed)...' &&
+        curl -X POST http://ollama:11434/api/pull -d '{\"name\":\"qwen2:7b\"}' || true &&
+        echo 'Starting SmartDocs...' &&
+        chainlit run app.py --port 8000 --host 0.0.0.0
+      "
+
+volumes:
+  ollama-models:
+    driver: local
+  milvus-data:
+    driver: local
